@@ -1,0 +1,66 @@
+:root {}
+
+.settings-page {
+    padding: 0;
+    display: grid;
+    gap: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.settings-card {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.settings-card h2 {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--fonte-preta);
+    margin: 0;
+}
+
+.settings-card p {
+    margin: 0;
+    color: #4b5563;
+    font-size: 14px;
+}
+
+.settings-card form {
+    display: grid;
+    gap: 12px;
+}
+
+.settings-card label {
+    font-weight: 600;
+    color: var(--fonte-preta);
+    font-size: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.settings-card .checkbox {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+    color: #4b5563;
+    margin: 0;
+}
+
+.settings-card .actions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.settings-card .btn-primary {
+    margin-top: 4px;
+}
+
+@media (max-width: 640px) {
+    .settings-page {
+        grid-template-columns: 1fr;
+    }
+}

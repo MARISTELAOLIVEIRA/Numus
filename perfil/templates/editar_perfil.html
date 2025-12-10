@@ -1,0 +1,343 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Perfil - NUMUS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'perfil/css/home.css' %}">
+    <style>
+        .form-group-custom {
+            margin-bottom: 20px;
+        }
+
+        .form-group-custom label {
+            font-weight: 600;
+            color: var(--fonte-preta);
+            margin-bottom: 8px;
+            display: block;
+            font-size: 14px;
+        }
+
+        .form-group-custom input,
+        .form-group-custom textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .form-group-custom input:focus,
+        .form-group-custom textarea:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+
+        .form-section {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e8eef5 100%);
+            padding: 24px;
+            border-radius: 8px;
+            border-left: 4px solid var(--secondary-color);
+            margin-bottom: 24px;
+        }
+
+        .form-section h3 {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--fonte-preta);
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .form-row-full {
+            display: block;
+        }
+
+        .form-row-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+        }
+
+        .avatar-upload {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            border: 2px dashed var(--secondary-color);
+            margin-bottom: 20px;
+        }
+
+        .avatar-preview {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--secondary-color);
+        }
+
+        .avatar-fallback {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #10B981 0%, #064E3B 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 40px;
+            font-weight: 700;
+            border: 3px solid var(--secondary-color);
+        }
+
+        .upload-info {
+            flex: 1;
+        }
+
+        .upload-info p {
+            font-size: 14px;
+            color: #666;
+            margin: 0;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .upload-btn {
+            background: var(--secondary-color);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            border: none;
+            transition: all 0.3s;
+        }
+
+        .upload-btn:hover {
+            background: var(--primary-color);
+        }
+
+        .btn-container {
+            display: flex;
+            gap: 12px;
+            margin-top: 30px;
+        }
+
+        .btn-submit {
+            background: var(--secondary-color);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 16px;
+        }
+
+        .btn-submit:hover {
+            background: var(--primary-color);
+            transform: translateY(-2px);
+        }
+
+        .btn-cancel {
+            background: transparent;
+            color: var(--primary-color);
+            padding: 12px 30px;
+            border-radius: 8px;
+            border: 1px solid var(--primary-color);
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            font-size: 16px;
+        }
+
+        .btn-cancel:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .form-row,
+            .form-row-3 {
+                grid-template-columns: 1fr;
+            }
+
+            .avatar-upload {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- MENU LATERAL -->
+    {% include 'includes/sidebar.html' %}
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <div class="main-content">
+        <!-- HEADER -->
+        <div class="header">
+            <h1 class="header-title">Editar Perfil</h1>
+            <a class="logo" aria-label="Logo" title="Logo"><img src="{% static 'perfil/img/logo.png' %}" alt="Logo"></a>
+        </div>
+
+        <!-- SAUDAÇÃO -->
+        <div class="greeting">
+            <h2>Atualize suas informações pessoais</h2>
+            <p>Mantenha seus dados sempre atualizados e completos</p>
+        </div>
+
+        <div class="container">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert {{ message.tags }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <!-- Foto de Perfil -->
+                <div class="form-section">
+                    <h3>Foto de Perfil</h3>
+                    
+                    <div class="avatar-upload">
+                        <div>
+                            {% if user_profile.foto_perfil %}
+                                <img src="{{ user_profile.foto_perfil.url }}" alt="Avatar" class="avatar-preview">
+                            {% else %}
+                                <div class="avatar-fallback">{{ user.first_name|first|default:"U" }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="upload-info">
+                            <p><strong>Altere sua foto de perfil</strong></p>
+                            <p style="font-size: 12px; color: #999; margin-top: 5px;">Formatos aceitos: JPG, PNG. Tamanho máximo: 5MB</p>
+                            <input type="file" id="foto_perfil" name="foto_perfil" accept="image/*" class="file-input">
+                            <button type="button" class="upload-btn" onclick="document.getElementById('foto_perfil').click()">Selecionar Foto</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Informações Básicas -->
+                <div class="form-section">
+                    <h3>Informações Básicas</h3>
+                    
+                    <div class="form-row">
+                        <div class="form-group-custom">
+                            <label for="first_name">Primeiro Nome</label>
+                            <input type="text" id="first_name" name="first_name" value="{{ user.first_name }}" required>
+                        </div>
+                        <div class="form-group-custom">
+                            <label for="last_name">Sobrenome</label>
+                            <input type="text" id="last_name" name="last_name" value="{{ user.last_name }}" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group-custom">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" name="email" value="{{ user.email }}" required>
+                        </div>
+                        <div class="form-group-custom">
+                            <label for="telefone">Telefone</label>
+                            <input type="tel" id="telefone" name="telefone" value="{{ user_profile.telefone }}" placeholder="(11) 99999-9999">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group-custom">
+                            <label for="data_nascimento">Data de Nascimento</label>
+                            <input type="date" id="data_nascimento" name="data_nascimento" value="{% if user_profile.data_nascimento %}{{ user_profile.data_nascimento|date:'Y-m-d' }}{% endif %}">
+                        </div>
+                        <div class="form-group-custom">
+                            <label for="cpf">CPF</label>
+                            <input type="text" id="cpf" name="cpf" value="{{ user_profile.cpf }}" placeholder="000.000.000-00">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Endereço -->
+                <div class="form-section">
+                    <h3>Endereço</h3>
+                    
+                    <div class="form-group-custom form-row-full">
+                        <label for="endereco">Rua e Número</label>
+                        <input type="text" id="endereco" name="endereco" value="{{ user_profile.endereco }}" placeholder="Rua das Flores, 123">
+                    </div>
+
+                    <div class="form-row-3">
+                        <div class="form-group-custom">
+                            <label for="cidade">Cidade</label>
+                            <input type="text" id="cidade" name="cidade" value="{{ user_profile.cidade }}" placeholder="São Paulo">
+                        </div>
+                        <div class="form-group-custom">
+                            <label for="estado">Estado</label>
+                            <input type="text" id="estado" name="estado" value="{{ user_profile.estado }}" placeholder="SP" maxlength="2">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bio -->
+                <div class="form-section">
+                    <h3>Sobre Você</h3>
+                    
+                    <div class="form-group-custom form-row-full">
+                        <label for="bio">Biografia</label>
+                        <textarea id="bio" name="bio" rows="5" placeholder="Conte um pouco sobre você..." maxlength="500">{{ user_profile.bio }}</textarea>
+                        <small style="color: #999;">Máximo 500 caracteres</small>
+                    </div>
+                </div>
+
+                <!-- Botões de Ação -->
+                <div class="btn-container">
+                    <button type="submit" class="btn-submit">💾 Salvar Alterações</button>
+                    <a href="{% url 'perfil' %}" class="btn-cancel">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Mostrar nome do arquivo quando selecionado
+        document.getElementById('foto_perfil').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const avatarPreview = document.querySelector('.avatar-preview') || document.querySelector('.avatar-fallback');
+                    if (avatarPreview) {
+                        const img = document.createElement('img');
+                        img.src = event.target.result;
+                        img.className = 'avatar-preview';
+                        avatarPreview.replaceWith(img);
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    </script>
+</body>
+</html>

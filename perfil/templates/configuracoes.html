@@ -1,0 +1,129 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configurações - NUMUS</title>
+    <link rel="icon" href="{% static 'perfil/img/logo.png' %}" type="image/png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'perfil/css/home.css' %}">
+    <link rel="stylesheet" href="{% static 'perfil/css/configuracoes.css' %}">
+</head>
+<body>
+    {% include 'includes/sidebar.html' %}
+
+    <div class="main-content">
+        <div class="header">
+            <h1 class="header-title">Configurações</h1>
+            <a class="logo" aria-label="Logo" title="Logo"><img src="{% static 'perfil/img/logo.png' %}" alt="Logo"></a>
+        </div>
+
+        <div class="content-wrapper" style="padding: 0 20px 32px;">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}" role="alert">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+
+            <div class="settings-page">
+                <div class="card settings-card">
+                    <h2>Configurações gerais</h2>
+                    <p>Ajuste idioma, moeda, formato de data e notificações.</p>
+                    <form method="POST" action="{% url 'configuracoes' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="gerais">
+                        <label>Idioma
+                            <select name="idioma" class="form-select">
+                                <option value="pt-BR" {% if user_profile.idioma == 'pt-BR' %}selected{% endif %}>Português (Brasil)</option>
+                                <option value="en-US" {% if user_profile.idioma == 'en-US' %}selected{% endif %}>English (US)</option>
+                            </select>
+                        </label>
+                        <label>Moeda
+                            <select name="moeda" class="form-select">
+                                <option value="BRL" {% if user_profile.moeda == 'BRL' %}selected{% endif %}>BRL - R$</option>
+                                <option value="USD" {% if user_profile.moeda == 'USD' %}selected{% endif %}>USD - $</option>
+                                <option value="EUR" {% if user_profile.moeda == 'EUR' %}selected{% endif %}>EUR - €</option>
+                            </select>
+                        </label>
+                        <label>Formato de data
+                            <select name="formato_data" class="form-select">
+                                <option value="dd/mm/yyyy" {% if user_profile.formato_data == 'dd/mm/yyyy' %}selected{% endif %}>dd/mm/yyyy</option>
+                                <option value="mm/dd/yyyy" {% if user_profile.formato_data == 'mm/dd/yyyy' %}selected{% endif %}>mm/dd/yyyy</option>
+                                <option value="yyyy-mm-dd" {% if user_profile.formato_data == 'yyyy-mm-dd' %}selected{% endif %}>yyyy-mm-dd</option>
+                            </select>
+                        </label>
+                        <label class="checkbox">
+                            <input type="checkbox" name="notificacoes_email" {% if user_profile.notificacoes_email %}checked{% endif %}> Receber notificações por e-mail
+                        </label>
+                        <div class="actions">
+                            <button type="submit" class="btn-primary">Salvar</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="card settings-card">
+                    <h2>Personalização</h2>
+                    <p>Tema e categorização automática.</p>
+                    <form method="POST" action="{% url 'configuracoes' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="personalizacao">
+                        <label>Tema
+                            <select name="tema" class="form-select">
+                                <option value="system" {% if user_profile.tema == 'system' %}selected{% endif %}>Padrão do sistema</option>
+                                <option value="light" {% if user_profile.tema == 'light' %}selected{% endif %}>Claro</option>
+                                <option value="dark" {% if user_profile.tema == 'dark' %}selected{% endif %}>Escuro</option>
+                            </select>
+                        </label>
+                        <label class="checkbox">
+                            <input type="checkbox" name="auto_categoria" {% if user_profile.auto_categoria %}checked{% endif %}> Habilitar categorização automática
+                        </label>
+                        <label>Layout do dashboard
+                            <select name="layout" class="form-select">
+                                <option value="compact" {% if user_profile.layout_dashboard == 'compact' %}selected{% endif %}>Compacto</option>
+                                <option value="comfortable" {% if user_profile.layout_dashboard == 'comfortable' %}selected{% endif %}>Confortável</option>
+                            </select>
+                        </label>
+                        <div class="actions">
+                            <button type="submit" class="btn-primary">Salvar</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="card settings-card">
+                    <h2>Segurança</h2>
+                    <p>Troque sua senha e controle 2FA.</p>
+                    <form method="POST" action="{% url 'configuracoes' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="seguranca">
+                        <label>Senha atual
+                            <input type="password" name="senha_atual" class="form-control" placeholder="Senha atual" required>
+                        </label>
+                        <label>Nova senha
+                            <input type="password" name="senha_nova" class="form-control" placeholder="Nova senha" required>
+                        </label>
+                        <label>Confirmar nova senha
+                            <input type="password" name="senha_confirm" class="form-control" placeholder="Confirmar nova senha" required>
+                        </label>
+                        <label class="checkbox">
+                            <input type="checkbox" name="two_factor" {% if user_profile.two_factor_enabled %}checked{% endif %}> Ativar autenticação em dois fatores (2FA)
+                        </label>
+                        <div class="actions">
+                            <button type="submit" class="btn-primary">Salvar</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="card settings-card">
+                    <h2>Encerrar sessão</h2>
+                    <p>Sair da conta atual e voltar para a página inicial.</p>
+                    <div class="actions" style="justify-content: flex-start;">
+                        <a class="botao-secundario" href="{% url 'logout' %}">Sair</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+</body>
+</html>

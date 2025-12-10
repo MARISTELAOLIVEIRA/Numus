@@ -1,0 +1,213 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Página Inicial - NUMUS</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="{% static 'perfil/css/home.css' %}">
+</head>
+
+<body>
+    <!-- MENU LATERAL -->
+        {% include 'includes/sidebar.html' %}
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <div class="main-content">
+        <!-- HEADER -->
+        <div class="header">
+            <h1 class="header-title">Página Inicial</h1>
+            <a class="logo" aria-label="Logo" title="Logo"><img src="{% static 'perfil/img/logo.png' %}" alt="Logo"></a>
+        </div>
+
+        <!-- SAUDAÇÃO -->
+        <div class="greeting">
+            <h2>Olá! Vamos cuidar das suas finanças hoje?</h2>
+            <p>Seu caminho para o controle começa aqui.</p>
+        </div>
+
+        <!-- PRIMEIRO BLOCO -->
+        <div class="dashboard-grid dashboard-grid-3">
+            <!-- Saldo Geral -->
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <div class="card-title">Saldo Geral</div>
+                        <div class="card-amount">R$ {{saldo_geral|default:"0"}}</div>
+                    </div>
+                    <a class="card-icon" aria-label="Saldo Geral" title="Saldo Geral"><img src="{% static 'perfil/img/saldo-geral.png' %}" alt="Saldo Geral"></a>
+                </div>
+            </div>
+
+            <!-- Entradas -->
+            <div class="card" style="cursor:pointer;transition:all 0.3s" onclick="window.location.href='{% url 'adicionar_entrada' %}'">
+                <div class="card-header">
+                    <div>
+                        <div class="card-title">Entradas</div>
+                        <div class="card-amount">R$ {{total_entradas|default:"0"}}</div>
+                    </div>
+                    <a class="card-icon" aria-label="Entradas" title="Entradas"><img src="{% static 'perfil/img/entradas.png' %}" alt="Entradas"></a>
+                </div>
+            </div>
+
+            <!-- Saídas -->
+            <div class="card" style="cursor:pointer;transition:all 0.3s" onclick="window.location.href='{% url 'adicionar_saida' %}'">
+                <div class="card-header">
+                    <div>
+                        <div class="card-title">Saídas</div>
+                        <div class="card-amount">R$ {{total_saidas|default:"0"}}</div>
+                    </div>
+                    <a class="card-icon" aria-label="Saídas" title="Saídas"><img src="{% static 'perfil/img/saidas.png' %}" alt="Saídas"></a>
+                </div>
+            </div>
+        </div>
+
+        <!-- SEGUNDO BLOCO -->
+        <div class="dashboard-grid dashboard-grid-2">
+            <!-- Objetivo Principal -->
+            <div class="card">
+                <div class="card-title" style="margin-bottom: 15px;">Objetivo principal<br>[economizar]</div>
+                <a href="{% url 'definir_planejamento' %}" class="btn-primary">Editar objetivo</a>
+            </div>
+
+            <!-- Planejamento -->
+            <div class="card">
+                <div class="card-title" style="margin-bottom: 15px;">Planejamento</div>
+                <a href="{% url 'ver_planejamento' %}" class="meta-item">Ver planejamento <span class="meta-arrow">→</span></a>
+                <a href="{% url 'definir_planejamento' %}" class="meta-item">Definir Planejamento <span class="meta-arrow">→</span></a>
+                <a href="{% url 'dashboard' %}" class="meta-item">Dashboard <span class="meta-arrow">→</span></a>
+                <a href="{% url 'gerenciar' %}" class="meta-item">Gerenciar <span class="meta-arrow">→</span></a>
+            </div>
+        </div>
+
+        <!-- TERCEIRO BLOCO -->
+        <div class="dashboard-grid dashboard-grid-2">
+            <!-- Últimos Gastos -->
+            <div class="card">
+                <div class="card-title" style="margin-bottom: 15px;">Suas Contas</div>
+                {% for conta in contas %}
+                <div class="expense-item">
+                    <span>{{conta.apelido}} - R$ {{conta.valor}}</span>
+                    <span class="expense-icon">→</span>
+                </div>
+                {% empty %}
+                <div class="expense-item">
+                    <span>Nenhuma conta cadastrada</span>
+                    <span class="expense-icon">→</span>
+                </div>
+                {% endfor %}
+                <a href="{% url 'gerenciar' %}" class="expense-item">
+                    <span>Ver todas as contas</span>
+                    <span class="expense-icon">→</span>
+                </a>
+            </div>
+
+            <!-- Categorias e Evolução combinadas -->
+            <div style="display: grid; gap: 20px;">
+                <!-- Categorias -->
+                <div class="card">
+                    <div class="card-title" style="margin-bottom: 20px;">Gastos por categoria</div>
+                    <canvas id="categoryPieChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- GRÁFICO DE EVOLUÇÃO -->
+        <div class="chart-container">
+            <div class="chart-title">Evolução Financeira — {{ selected_year }}</div>
+            <canvas id="evolutionChart"></canvas>
+        </div>
+    </div>
+
+    <script>
+        // Avatar fallback: insere um SVG codificado quando a imagem do usuário não existir
+        function avatarFallback(img){
+            img.onerror = null;
+            var svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g fill="%23ffffff"><circle cx="12" cy="8" r="3"/><path d="M12 12c-4 0-6 2-6 4v1h12v-1c0-2-2-4-6-4z"/></g></svg>';
+            img.src = 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+        }
+
+        // Category Pie Chart
+        const categoryPieCtx = document.getElementById('categoryPieChart').getContext('2d');
+        const categoryPieData = {
+            labels: {{ labels|safe|default:"[]" }},
+            datasets: [{
+                data: {{ values|safe|default:"[]" }},
+                backgroundColor: {{ colors|safe|default:"[]" }},
+                borderColor: 'white',
+                borderWidth: 2
+            }]
+        };
+
+        new Chart(categoryPieCtx, {
+            type: 'doughnut',
+            data: categoryPieData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: { 
+                        display: true,
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+
+        // Evolution Chart (Line Chart)
+        const evolutionCtx = document.getElementById('evolutionChart').getContext('2d');
+        const evolutionData = {
+            labels: {{ meses_labels|safe }},
+            datasets: [
+                {
+                    label: 'Recebido',
+                    data: {{ entradas_data|safe }},
+                    borderColor: '#14b8a6',
+                    backgroundColor: 'rgba(20, 184, 166, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 4,
+                    pointBackgroundColor: '#14b8a6'
+                },
+                {
+                    label: 'Gasto',
+                    data: {{ gastos_data|safe }},
+                    borderColor: '#ef4444',
+                    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 4,
+                    pointBackgroundColor: '#ef4444'
+                }
+            ]
+        };
+
+        new Chart(evolutionCtx, {
+            type: 'line',
+            data: evolutionData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                interaction: { mode: 'index', intersect: false },
+                plugins: {
+                    legend: { 
+                        display: true,
+                        position: 'bottom'
+                    },
+                    filler: { propagate: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: { display: true, text: 'Valor (R$)' },
+                        ticks: { callback: function(value) { return 'R$ ' + value.toFixed(0); } }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

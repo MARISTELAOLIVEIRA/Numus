@@ -1,0 +1,381 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entrar - NUMUS</title>
+    <link rel="icon" href="{% static 'perfil/img/logo.png' %}" type="image/png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #064E3B;
+            --secondary-color: #10B981;
+            --secondary-color-hover: #7ED4BD;
+            --terciary-color: #5D0D79;
+            --terciary-color-hover: #8F34C2;
+            --fundo: #FAFAFA;
+            --fonte-preta: #000;
+            --fonte-branca: #fff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--fundo);
+            color: var(--fonte-preta);
+        }
+
+        /* HEADER */
+        header {
+            background-color: var(--primary-color);
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header img {
+            height: 45px;
+        }
+
+        .header-buttons {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .header-buttons a {
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            margin-left: 10px;
+            font-weight: bold;
+            color: var(--fonte-branca);
+        }
+
+        .btn-criar {
+            background-color: var(--secondary-color);
+        }
+
+        .btn-criar:hover {
+            background-color: var(--secondary-color-hover);
+        }
+
+        .btn-entrar {
+            background-color: var(--terciary-color);
+        }
+
+        .btn-entrar:hover {
+            background-color: var(--terciary-color-hover);
+        }
+
+        /* LOGIN WRAPPER */
+        .login-wrapper {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 20px;
+        }
+
+        .login-card {
+            display: flex;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            max-width: 900px;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        /* LADO ESQUERDO */
+        .login-left {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: var(--fonte-branca);
+            padding: 60px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            min-width: 300px;
+        }
+
+        .mini-logo {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 30px;
+        }
+
+        .login-left h2 {
+            font-size: 24px;
+            line-height: 1.4;
+        }
+
+        /* DIVIDER */
+        .divider {
+            width: 2px;
+            background-color: #ddd;
+        }
+
+        /* LADO DIREITO */
+        .login-right {
+            padding: 60px 40px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-width: 300px;
+        }
+
+        .login-right h2 {
+            font-size: 28px;
+            margin-bottom: 30px;
+            color: var(--fonte-preta);
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        label {
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--fonte-preta);
+            margin-bottom: 5px;
+        }
+
+        input {
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+
+        .error {
+            color: #dc3545;
+            font-size: 13px;
+            margin-top: -10px;
+        }
+
+        .btn-entrar-form {
+            padding: 12px 20px;
+            background-color: var(--secondary-color);
+            color: var(--fonte-branca);
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn-entrar-form:hover:not(:disabled) {
+            background-color: var(--secondary-color-hover);
+        }
+
+        .btn-entrar-form:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .submitMessage {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .submitMessage.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .submitMessage.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        /* FOOTER */
+        footer {
+            background-color: #f5f5f5;
+            padding: 20px;
+            text-align: center;
+            font-size: 13px;
+            color: #666;
+            border-top: 1px solid #ddd;
+        }
+
+        /* ALERTS */
+        .alert {
+            margin-bottom: 20px;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid;
+        }
+
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+            border-color: #f5c6cb;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border-color: #c3e6cb;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 15px;
+                padding: 15px 20px;
+            }
+
+            .login-card {
+                flex-direction: column;
+            }
+
+            .login-left,
+            .login-right {
+                min-width: 100%;
+            }
+
+            .divider {
+                width: 100%;
+                height: 2px;
+            }
+
+            .login-left {
+                padding: 40px 20px;
+            }
+
+            .login-right {
+                padding: 40px 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- HEADER -->
+    <header>
+        <a href="{% url 'home' %}"><img src="{% static 'perfil/img/logo.png' %}" alt="NUMUS Logo"></a>
+        <div class="header-buttons">
+            <a href="{% url 'register' %}" class="btn-criar">Criar conta</a>
+            <a href="{% url 'login' %}" class="btn-entrar">Entrar</a>
+        </div>
+    </header>
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <section class="login-wrapper">
+        <div class="login-card">
+            <!-- LADO ESQUERDO -->
+            <div class="login-left">
+                <img src="{% static 'perfil/img/logo.png' %}" alt="NUMUS Logo" class="mini-logo">
+                <h2>Sua vida financeira merece clareza.</h2>
+            </div>
+
+            <!-- LINHA VERTICAL -->
+            <div class="divider"></div>
+
+            <!-- LADO DIREITO -->
+            <div class="login-right">
+                <h2>Entrar na sua conta</h2>
+
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+
+                <form method="POST" novalidate>
+                    {% csrf_token %}
+                    
+                    <label for="email">Digite seu email</label>
+                    <input id="email" name="email" type="email" placeholder="email@exemplo.com" required>
+                    <div id="email-error" class="error"></div>
+
+                    <label for="password">Digite sua senha</label>
+                    <input id="password" name="password" type="password" placeholder="Senha" required>
+                    <div id="password-error" class="error"></div>
+
+                    <button class="btn-entrar-form" type="submit">Entrar</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        Desenvolvido para fins educacionais
+    </footer>
+
+    <script>
+        const form = document.querySelector('form');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const emailError = document.getElementById('email-error');
+        const passwordError = document.getElementById('password-error');
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        function validateForm() {
+            let isValid = true;
+
+            emailError.textContent = '';
+            passwordError.textContent = '';
+
+            if (!emailInput.value.trim()) {
+                emailError.textContent = 'Email é obrigatório';
+                isValid = false;
+            } else if (!emailRegex.test(emailInput.value)) {
+                emailError.textContent = 'Email inválido';
+                isValid = false;
+            }
+
+            if (!passwordInput.value) {
+                passwordError.textContent = 'Senha é obrigatória';
+                isValid = false;
+            }
+
+            return isValid;
+        }
+
+        form.addEventListener('submit', (e) => {
+            if (!validateForm()) {
+                e.preventDefault();
+            }
+        });
+
+        emailInput.addEventListener('blur', validateForm);
+        passwordInput.addEventListener('blur', validateForm);
+    </script>
+</body>
+
+</html>

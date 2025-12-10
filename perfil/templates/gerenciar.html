@@ -1,0 +1,426 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carteira - NUMUS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'perfil/css/home.css' %}">
+    <style>
+        :root {
+            --primary-color: #064E3B;
+            --primary-color-hover: #0C805F;
+            --secondary-color: #10B981;
+            --secondary-color-hover: #7ED4BD;
+            --terciary-color: #5D0D79;
+            --fundo-tela: #D9DCDF;
+            --fundo-blocos: rgba(250,250,250,0.8);
+            --fonte-preta: #0f1724;
+            --fonte-branca: #ffffff;
+            --modal-bg: #fff;
+            --modal-text: #111;
+            --modal-accent: var(--secondary-color);
+            --modal-overlay-bg: rgba(2,6,23,0.45);
+            --modal-radius: 12px;
+            --modal-shadow: 0 18px 40px rgba(2,6,23,0.22);
+        }
+
+        .page { padding: 32px; display:flex; justify-content:center; }
+        .content { width: 1200px; max-width: 96%; }
+        .card-list { display:flex; flex-direction:column; gap:32px; }
+        .card { background: var(--fundo-blocos); border-radius: 12px; padding: 32px; box-shadow: 0 2px 8px rgba(15,23,36,0.06); }
+
+        /* SALDO */
+        .saldo-grid { display:grid; grid-template-columns: 1fr 2fr; gap:32px; align-items:center; padding:24px; border-radius:12px; }
+        .saldo-left { display:flex; flex-direction:column; justify-content:center; }
+        .saldo-title { font-size: 40px; font-weight:700; }
+        .saldo-amount { font-size: 48px; font-weight:800; color: var(--secondary-color); }
+
+        /* CONTAS */
+        .saldo-right { background:#d0e8e6; border-radius:12px; padding:24px; }
+        .accounts-title { font-size: 18px; font-weight: 700; margin-bottom: 16px; color: var(--primary-color); }
+        .accounts-grid { display:grid; grid-template-columns: repeat(3, 1fr); gap:12px; margin-bottom:16px; }
+        .account-card { 
+            border-radius:8px; 
+            padding:16px; 
+            color: var(--fonte-preta); 
+            background: rgba(255,255,255,0.5); 
+            min-height:110px; 
+            display:flex; 
+            flex-direction:column; 
+            justify-content:space-between; 
+            box-shadow: inset 0 0 0 1px rgba(11,18,32,0.03);
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .account-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .account-name { font-size: 14px; margin-bottom: 4px; }
+        .account-desc { font-size: 12px; color: rgba(0, 0, 0, 0.6); margin-bottom: 8px; }
+        .account-amount { font-size: 18px; font-weight: 700; }
+        .account-one { background: #ff9501; color:#111; }
+        .account-two { background: #a10ed5; color:#fff; }
+        .account-three { background: #10B981; color:#fff; }
+        .accounts-actions { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+
+        /* BOTÕES */
+        .btn { 
+            border: none; 
+            padding: 10px 16px; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-weight:600; 
+            font-size: 14px;
+            transition: transform .08s ease, box-shadow .08s ease;
+            font-family: inherit;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn:hover { transform: translateY(-1px); }
+        .btn:active { transform: translateY(0); }
+        .btn-teal { 
+            background: var(--secondary-color); 
+            color: #fff; 
+            box-shadow: 0 6px 18px rgba(6,182,164,0.12); 
+        }
+        .btn-teal:hover {
+            background: var(--secondary-color-hover);
+            box-shadow: 0 8px 20px rgba(6,182,164,0.18);
+            color: #fff;
+        }
+        .btn-red { 
+            background: #b1101b; 
+            color: #fff; 
+            box-shadow: 0 6px 18px rgba(239,68,68,0.12); 
+        }
+        .btn-red:hover {
+            background: #d11825;
+            box-shadow: 0 8px 20px rgba(239,68,68,0.18);
+        }
+        .btn-secondary { 
+            background: #f1f1f1; 
+            color: #111; 
+            padding: 10px 14px; 
+            border-radius: 8px; 
+        }
+        .btn-secondary:hover { background: #e5e5e5; }
+
+        /* TABELA / ATIVIDADE */
+        .activity-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; flex-wrap: wrap; gap: 15px; }
+        .activity-title { font-size: 20px; font-weight: 700; color: var(--fonte-preta); }
+        .activity-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+        .activity-table { margin-top:12px; background: var(--fundo-blocos); padding:24px; border-radius:12px; }
+
+        /* Cabeçalho da tabela */
+        .table-header {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+            gap: 12px;
+            padding: 12px 16px;
+            background: rgba(6, 78, 59, 0.08);
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 14px;
+            color: var(--primary-color);
+            margin-bottom: 8px;
+        }
+
+        /* Lista de registros */
+        .records-list { display: flex; flex-direction: column; gap: 8px; }
+
+        /* Linha da tabela */
+        .table-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+            gap: 12px;
+            padding: 16px;
+            background: #fff;
+            border-radius: 8px;
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            align-items: center;
+        }
+        .table-row:hover {
+            background: rgba(16, 185, 129, 0.05);
+            border-color: rgba(16, 185, 129, 0.2);
+            transform: translateX(4px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+        .table-row > div { font-size: 14px; color: var(--fonte-preta); }
+        .table-row strong {
+            display: block;
+            font-weight: 600;
+            font-size: 12px;
+            color: var(--primary-color);
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        .table-row .muted { color: #555; font-size: 14px; }
+        .row-icon {
+            text-align: center;
+            font-size: 18px;
+            color: var(--secondary-color);
+            font-weight: bold;
+        }
+
+        @media (max-width: 1024px) {
+            .table-header, .table-row {
+                grid-template-columns: 1fr 1fr 1fr;
+            }
+            .table-header div:nth-child(n+4),
+            .table-row > div:nth-child(n+4) {
+                display: none;
+            }
+            .accounts-grid { grid-template-columns: repeat(2, 1fr); }
+            .saldo-grid { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 768px) {
+            .table-header, .table-row { grid-template-columns: 1fr; }
+            .accounts-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- MENU LATERAL -->
+    {% include 'includes/sidebar.html' %}
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <div class="main-content">
+        <!-- HEADER -->
+        <div class="header">
+            <h1 class="header-title">Carteira</h1>
+            <a class="logo" aria-label="Logo" title="Logo"><img src="{% static 'perfil/img/logo.png' %}" alt="Logo"></a>
+        </div>
+
+        <!-- SAUDAÇÃO -->
+        <div class="greeting">
+            <h2>Gerencie todo o seu dinheiro em um só lugar.</h2>
+            <p>Nesta tela, você acompanha o saldo de cada conta e mantém o registro de todas as movimentações para ter o controle total das suas finanças.</p>
+        </div>
+
+        <div class="page">
+            <div class="content">
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert {{ message.tags }}" style="margin-bottom: 20px;">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+
+                <div class="card-list">
+                    <!-- Saldo Card -->
+                    <div class="card saldo-card">
+                        <div class="saldo-grid">
+                            <!-- Left side - Saldo Geral -->
+                            <div class="saldo-left">
+                                <h2 class="saldo-title">Saldo geral</h2>
+                                <p class="saldo-amount">R$ <span id="saldoGeral">{{ total_contas|default:"0,00" }}</span></p>
+                            </div>
+
+                            <!-- Right side - Saldo das Contas -->
+                            <div class="saldo-right">
+                                <h3 class="accounts-title">Saldo das contas</h3>
+
+                                <div id="accountsGrid" class="accounts-grid">
+                                    {% for conta in contas %}
+                                        <div class="account-card account-{% cycle 'one' 'two' 'three' %}" data-account-id="{{ conta.id }}" data-account-name="{{ conta.apelido }}">
+                                            <p class="account-name"><strong>{{ conta.apelido }}</strong></p>
+                                            <p class="account-desc">{{ conta.get_banco_display }}</p>
+                                            <p class="account-amount">R$ <span>{{ conta.valor }}</span></p>
+                                        </div>
+                                    {% empty %}
+                                        <div style="grid-column: 1/-1; padding: 20px; text-align: center; color: #999;">
+                                            Nenhuma conta cadastrada
+                                        </div>
+                                    {% endfor %}
+                                </div>
+
+                                <div class="accounts-actions">
+                                    <button type="button" class="btn btn-teal" id="btnAddAccount" data-bs-toggle="modal" data-bs-target="#addAccountModal">+ Adicionar conta</button>
+                                    <button id="btnRemove" class="btn btn-red">− Remover conta</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Activity Section -->
+                    <div class="card activity-card">
+                        <div class="activity-header">
+                            <h2 class="activity-title">Atividade geral</h2>
+                            <div class="activity-actions">
+                                <a href="{% url 'adicionar_entrada' %}" class="btn btn-teal">+ Nova entrada</a>
+                                <a href="{% url 'adicionar_saida' %}" class="btn btn-teal">+ Nova saída</a>
+                                <button id="btnFilters" class="btn btn-secondary">🔽 Filtros</button>
+                            </div>
+                        </div>
+
+                        <!-- Table -->
+                        <div class="activity-table">
+                            <!-- Header -->
+                            <div class="table-header">
+                                <div>Data</div>
+                                <div>Categoria</div>
+                                <div>Valor</div>
+                                <div>Conta</div>
+                                <div>Tipo</div>
+                                <div></div>
+                            </div>
+
+                            <!-- Rows -->
+                            <div id="recordsList" class="records-list">
+                                {% for valor in valores %}
+                                    <div class="table-row">
+                                        <div><strong>Data</strong><br><span class="muted">{{ valor.data|date:"d/m/Y" }}</span></div>
+                                        <div><strong>Categoria</strong><br><span class="muted">{{ valor.categoria.categoria }}</span></div>
+                                        <div><strong>Valor</strong><br><span class="muted">R$ {{ valor.valor }}</span></div>
+                                        <div><strong>Conta</strong><br><span class="muted">{{ valor.conta.apelido }}</span></div>
+                                        <div><strong>Tipo</strong><br><span class="muted">{% if valor.tipo == 'E' %}Entrada{% else %}Saída{% endif %}</span></div>
+                                    </div>
+                                {% empty %}
+                                    <div style="padding: 20px; text-align: center; color: #999;">
+                                        Nenhum registro encontrado
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div> <!-- .card-list -->
+            </div> <!-- .content -->
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Modal de Adicionar Conta -->
+    <div class="modal fade" id="addAccountModal" tabindex="-1" aria-labelledby="addAccountLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addAccountLabel">Adicionar Nova Conta</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="POST" action="{% url 'cadastrar_banco' %}" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="apelido" class="form-label">Apelido</label>
+                            <input type="text" class="form-control" id="apelido" name="apelido" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="banco" class="form-label">Banco</label>
+                            <select class="form-select" id="banco" name="banco" required>
+                                <option value="">Selecione um banco</option>
+                                <option value="NU">Nubank</option>
+                                <option value="ST">Santander</option>
+                                <option value="BB">Banco do Brasil</option>
+                                <option value="CE">Caixa Econômica</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="tipo" class="form-label">Tipo</label>
+                            <select class="form-select" id="tipo" name="tipo" required>
+                                <option value="">Selecione um tipo</option>
+                                <option value="pf">Pessoa Física</option>
+                                <option value="pj">Pessoa Jurídica</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="valor" class="form-label">Valor Inicial</label>
+                            <input type="number" class="form-control" id="valor" name="valor" step="0.01" min="0" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="icone" class="form-label">Ícone <span style="color:#999;font-size:12px">(opcional)</span></label>
+                            <input type="file" class="form-control" id="icone" name="icone" accept="image/*">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-teal">Adicionar Conta</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Modal de Deleção de Conta -->
+    <div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-labelledby="deleteAccountLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteAccountLabel">Confirmar Deleção</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Você tem certeza que quer deletar a conta <strong id="accountNameConfirm"></strong>? Esta ação não pode ser desfeita.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <a href="#" id="deleteAccountLink" class="btn btn-danger">Deletar</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Modal de deleção de conta
+        const deleteModal = document.getElementById('deleteAccountModal');
+        const btnRemove = document.getElementById('btnRemove');
+        const accountsGrid = document.getElementById('accountsGrid');
+        
+        let isSelectingAccount = false;
+        
+        // Quando clica em "Remover conta", entra em modo seleção
+        if (btnRemove) {
+            btnRemove.addEventListener('click', function() {
+                isSelectingAccount = !isSelectingAccount;
+                
+                if (isSelectingAccount) {
+                    accountsGrid.style.opacity = '0.7';
+                    btnRemove.textContent = '✓ Clique na conta para deletar';
+                    btnRemove.style.background = '#f97316';
+                    
+                    const cards = accountsGrid.querySelectorAll('.account-card');
+                    cards.forEach(card => {
+                        card.style.cursor = 'pointer';
+                        card.style.border = '2px solid transparent';
+                        card.addEventListener('click', selectAccount);
+                    });
+                } else {
+                    accountsGrid.style.opacity = '1';
+                    btnRemove.textContent = '− Remover conta';
+                    btnRemove.style.background = '#b1101b';
+                    
+                    const cards = accountsGrid.querySelectorAll('.account-card');
+                    cards.forEach(card => {
+                        card.style.cursor = 'default';
+                        card.removeEventListener('click', selectAccount);
+                    });
+                }
+            });
+        }
+        
+        function selectAccount(e) {
+            e.stopPropagation();
+            const card = this;
+            const accountId = card.getAttribute('data-account-id');
+            const accountName = card.getAttribute('data-account-name');
+            
+            document.getElementById('accountNameConfirm').textContent = accountName;
+            document.getElementById('deleteAccountLink').href = `/perfil/deletar_banco/${accountId}/`;
+            
+            const deleteModalBS = new bootstrap.Modal(deleteModal);
+            deleteModalBS.show();
+        }
+    </script>
+</body>
+</html>
