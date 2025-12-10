@@ -1,0 +1,115 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NUMUS</title>
+    <link rel="icon" href="{% static 'perfil/img/logo.png' %}" type="image/png">
+    <link rel="stylesheet" href="{% static 'geral/css/index.css' %}">
+</head>
+<body>
+    <!-- HEADER -->
+    <header>
+        <a href="{% url 'landing' %}"><img src="{% static 'perfil/img/logo-numus.svg' %}" alt="Numus Logo"></a>
+        <div class="header-buttons">
+            <a href="{% url 'register' %}" class="btn-criar">Criar conta</a>
+            <a href="{% url 'login' %}" class="btn-entrar">Entrar</a>
+        </div>
+    </header>
+
+    <!-- HERO -->
+    <section class="hero">
+        <div class="hero-text">
+            <h1>Organizar suas finanças não precisa ser difícil.</h1>
+            <p>
+                Comece agora a enxergar sua vida financeira de um jeito que você nunca viu.
+                Tenha uma visão inteligente dos seus gastos, conquistas e padrões.
+                Tudo em um painel bonito, simples e que realmente faz sentido.
+            </p>
+            <!-- <a class="btn-cta" href="#">Começar gratuitamente</a> -->
+        </div>
+
+        <img src="{% static 'perfil/img/hero-image.svg' %}" alt="Ilustração financeira">
+    </section>
+
+    <!-- BENEFÍCIOS -->
+    <section class="beneficios-section">
+        <h2>Benefícios de tomar o controle das suas finanças</h2>
+
+        <div class="beneficios-grid">
+            <div class="beneficio-card">
+                <h3>Segurança financeira</h3>
+                <p>Tranquilidade mental para dormir sem ficar calculando dívidas.</p>
+            </div>
+
+            <div class="beneficio-card">
+                <h3>Redução de estresse</h3>
+                <p>Saber exatamente onde seu dinheiro está indo diminui o estresse.</p>
+            </div>
+
+            <div class="beneficio-card">
+                <h3>Realização de metas</h3>
+                <p>Planeje viagens, estudos ou o que realmente importa.</p>
+            </div>
+
+            <div class="beneficio-card">
+                <h3>Possibilidade de investimentos</h3>
+                <p>Você vira a pessoa que entende do assunto.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- CITAÇÃO -->
+    <section class="citacao">
+        <p>
+            "Organizar o presente é o primeiro passo para construir o futuro.
+            Sua vida financeira merece o compromisso que transformará esse sonho em meta real."
+        </p>
+        <strong>— Equipe Numus</strong>
+    </section>
+
+    <!-- DIFERENCIAIS -->
+    <section class="diferenciais">
+        <h2>Diferenciais da Numus</h2>
+
+        <div class="diferenciais-grid">
+            <div class="diff-card">
+                <h3>Painel visual inteligente</h3>
+                <p>Nada de tabelas confusas. Gráficos e insights instantâneos.</p>
+            </div>
+
+            <div class="diff-card">
+                <h3>Motivação leve e contínua</h3>
+                <p>Evolua porque entende melhor, não porque se culpa.</p>
+            </div>
+
+            <div class="diff-card">
+                <h3>Retrospectiva Financeira Viva</h3>
+                <p>Sua jornada financeira como um wrapped inteligente.</p>
+            </div>
+
+            <div class="diff-card">
+                <h3>Análise comportamental integrada</h3>
+                <p>Hábitos e gatilhos revelados para gerar grandes resultados.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA FINAL -->
+    <section class="cta-final">
+        <h2>Comece 2026 organizado(a) financeiramente!</h2>
+        <p>
+            A Numus te ajuda a transformar confusão em clareza.
+            2026 pode ser o ano da virada.
+        </p>
+        <a class="btn-final" href="{% url 'register' %}">GARANTIR MEU ACESSO GRATUITO</a>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        Desenvolvido para fins educacionais
+    </footer>
+
+</body>
+</html>

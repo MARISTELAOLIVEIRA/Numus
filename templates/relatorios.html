@@ -1,0 +1,170 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatórios - NUMUS</title>
+    <link rel="stylesheet" href="{% static 'perfil/css/home.css' %}">
+    <link rel="stylesheet" href="{% static 'extrato/css/view_extrato.css' %}">
+</head>
+
+<body>
+    <!-- MENU LATERAL -->
+    {% include 'includes/sidebar.html' %}
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <div class="main-content">
+        <!-- HEADER -->
+        <div class="header">
+            <h1 class="header-title">Relatórios</h1>
+            <a class="logo" aria-label="Logo" title="Logo"><img src="{% static 'perfil/img/logo.png' %}" alt="Logo"></a>
+        </div>
+
+        <!-- SAUDAÇÃO -->
+        <div class="greeting">
+            <h2>Veja como você se saiu no último mês.</h2>
+            <p>Descubra padrões de gastos por categoria e ajuste o que for preciso para atingir suas metas.</p>
+        </div>
+
+        <div class='container'>
+            <br>
+
+            <form action="{% url 'relatorios' %}" method="GET">
+                <div class="row">
+
+                    <div class="col-md">
+                        <label>Conta</label>
+                        <select name="conta" class="form-select">
+                            <option value="">-- Todas --</option>
+                            {% for conta in contas %}
+                                <option value="{{conta.id}}" {% if request.GET.conta == conta.id|stringformat:"s" %}selected{% endif %}>{{conta}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-md">
+                        <label>Categoria</label>
+                        <select name="categoria" class="form-select">
+                            <option value="">-- Todas --</option>
+                            {% for categoria in categorias %}
+                                <option value="{{categoria.id}}" {% if request.GET.categoria == categoria.id|stringformat:"s" %}selected{% endif %}>{{categoria}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-md">
+                        <label>Data inicial</label>
+                        <input type="date" name="start_date" class="form-control" value="{{ request.GET.start_date }}">
+                    </div>
+
+                    <div class="col-md">
+                        <label>Data final</label>
+                        <input type="date" name="end_date" class="form-control" value="{{ request.GET.end_date }}">
+                    </div>
+
+                </div>
+
+                <br>
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-4">
+                        <label>Buscar descrição</label>
+                        <input type="text" name="search" class="form-control" placeholder="Descrição" value="{{ request.GET.search }}">
+                    </div>
+                    <div class="col-md-3">
+                        <label>Ordenar por</label>
+                        <select name="sort" class="form-select">
+                            <option value="-data" {% if request.GET.sort == "-data" or not request.GET.sort %}selected{% endif %}>Data (mais recente)</option>
+                            <option value="data" {% if request.GET.sort == "data" %}selected{% endif %}>Data (antiga)</option>
+                            <option value="-valor" {% if request.GET.sort == "-valor" %}selected{% endif %}>Valor (maior)</option>
+                            <option value="valor" {% if request.GET.sort == "valor" %}selected{% endif %}>Valor (menor)</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <input style="width: 100%" type="submit" class="botao-principal" value="Filtrar">
+                    </div>
+                    <div class="col-md-3">
+                        <a href="{% url 'relatorios_export_pdf' %}?{% if request.GET %}{{ request.GET.urlencode }}{% endif %}" class="botao-principal" style="display: block; text-align: center; text-decoration: none;">Exportar PDF</a>
+                    </div>
+                </div>
+            </form>
+
+            <br>
+            <br>
+
+            <div class="card">
+                <div class="card-title">Movimentações do Mês</div>
+                <div class="card-body">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Conta</th>
+                                <th>Categoria</th>
+                                <th>Data</th>
+                                <th>Tipo</th>
+                                <th>Valor</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Saldo Inicial das Contas -->
+                            {% for conta in contas %}
+                                <tr class="linha" style="background-color:#e8f5e9;font-weight:500">
+                                    <td><strong>{{conta.apelido}}</strong></td>
+                                    <td><em>Saldo Inicial</em></td>
+                                    <td>--</td>
+                                    <td style="text-align:center">
+                                        <img src="{% static 'perfil/img/saldo-geral.png' %}" alt="Saldo" style="width:20px">
+                                    </td>
+                                    <td>R$ {{conta.valor}}</td>
+                                </tr>
+                            {% endfor %}
+
+                            <!-- Movimentações -->
+                            {% for valor in valores %}
+                                <tr class="linha">
+                                    <td>{{valor.conta}}</td>
+                                    <td>{{valor.categoria}}</td>
+                                    <td>{{valor.data}}</td>
+                                    <td>
+                                        {% if valor.tipo == 'S' %}
+                                            Saída
+                                        {% else %}
+                                            Entrada
+                                        {% endif %}
+                                    </td>
+                                    <td>R$ {{valor.valor}}</td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="5" style="text-align:center;padding:20px">Nenhuma movimentação encontrada</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            {% if page_obj.has_other_pages %}
+                <div style="margin-top:12px; display:flex; gap:8px; align-items:center;">
+                    {% if page_obj.has_previous %}
+                        <a class="botao-secundario" href="?{% if request.GET %}{{ request.GET.urlencode }}&{% endif %}page={{ page_obj.previous_page_number }}">Anterior</a>
+                    {% else %}
+                        <span class="botao-secundario" style="opacity:0.5;">Anterior</span>
+                    {% endif %}
+
+                    <span>Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+
+                    {% if page_obj.has_next %}
+                        <a class="botao-secundario" href="?{% if request.GET %}{{ request.GET.urlencode }}&{% endif %}page={{ page_obj.next_page_number }}">Próxima</a>
+                    {% else %}
+                        <span class="botao-secundario" style="opacity:0.5;">Próxima</span>
+                    {% endif %}
+                </div>
+            {% endif %}
+
+        </div>
+    </div>
+
+</body>
+</html>

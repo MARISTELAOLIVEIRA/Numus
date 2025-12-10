@@ -1,0 +1,171 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ver Planejamento - NUMUS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'perfil/css/home.css' %}">
+    <style>
+        .categoria-item {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e8eef5 100%);
+            padding: 16px;
+            border-radius: 8px;
+            border-left: 4px solid var(--secondary-color);
+            margin-bottom: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .categoria-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .categoria-name {
+            font-weight: 700;
+            color: var(--fonte-preta);
+            font-size: 16px;
+            flex: 0 0 auto;
+        }
+
+        .categoria-values {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .categoria-gasto,
+        .categoria-planejado {
+            font-size: 14px;
+            color: var(--fonte-preta);
+            white-space: nowrap;
+        }
+
+        .categoria-gasto strong,
+        .categoria-planejado strong {
+            color: var(--fonte-preta);
+            font-weight: 700;
+        }
+
+        .categoria-progress {
+            background-color: #e0e0e0;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+            width: 100%;
+        }
+
+        .progress-bar-inner {
+            height: 100%;
+            background: linear-gradient(90deg, var(--secondary-color) 0%, var(--primary-color) 100%);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+            box-shadow: 0 0 4px rgba(16, 185, 129, 0.3);
+        }
+
+        .categoria-progress-text {
+            font-size: 12px;
+            color: var(--fonte-preta);
+            margin-top: 6px;
+            text-align: right;
+        }
+
+        .categoria-alert-danger {
+            border-left-color: #ef4444;
+        }
+
+        .categoria-alert-danger .progress-bar-inner {
+            background: linear-gradient(90deg, #ef4444 0%, #dc2626 100%);
+            box-shadow: 0 0 4px rgba(239, 68, 68, 0.3);
+        }
+
+        .categoria-alert-warning {
+            border-left-color: #f59e0b;
+        }
+
+        .categoria-alert-warning .progress-bar-inner {
+            background: linear-gradient(90deg, #f59e0b 0%, #d97706 100%);
+            box-shadow: 0 0 4px rgba(245, 158, 11, 0.3);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: var(--fonte-preta);
+        }
+
+        .empty-state p {
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- MENU LATERAL -->
+    {% include 'includes/sidebar.html' %}
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <div class="main-content">
+        <!-- HEADER -->
+        <div class="header">
+            <h1 class="header-title">Ver Planejamento</h1>
+            <a class="logo" aria-label="Logo" title="Logo"><img src="{% static 'perfil/img/logo.png' %}" alt="Logo"></a>
+        </div>
+
+        <!-- SAUDAÇÃO -->
+        <div class="greeting">
+            <h2>Acompanhe seus gastos por categoria</h2>
+            <p>Visualize quanto você gastou em relação ao planejado para cada categoria</p>
+        </div>
+
+        <div class="container">
+            <div class="card">
+                {% if categorias %}
+                    {% for categoria in categorias %}
+                        {% with percentual=categoria.calcula_percentual_gasto_por_categoria %}
+                            <div class="categoria-item {% if percentual >= 100 %}categoria-alert-danger{% elif percentual >= 80 %}categoria-alert-warning{% endif %}">
+                                <div class="categoria-top">
+                                    <div class="categoria-name">{{ categoria.categoria }}</div>
+                                    <div class="categoria-values">
+                                        <div class="categoria-gasto">
+                                            Gasto: <strong>R$ {{ categoria.total_gasto|floatformat:2 }}</strong>
+                                        </div>
+                                        <div class="categoria-planejado">
+                                            Planejado: <strong>R$ {{ categoria.valor_planejado|floatformat:2 }}</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="categoria-progress">
+                                    <div class="progress-bar-inner" style="width: {{ percentual }}%"></div>
+                                </div>
+                                <div class="categoria-progress-text">
+                                    {{ percentual }}% do planejado
+                                </div>
+                            </div>
+                        {% endwith %}
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state">
+                        <p>Nenhuma categoria cadastrada.</p>
+                        <p style="font-size: 14px; color: #666;">
+                            <a href="{% url 'definir_planejamento' %}" style="color: var(--secondary-color); text-decoration: none;">
+                                Clique aqui para adicionar categorias
+                            </a>
+                        </p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

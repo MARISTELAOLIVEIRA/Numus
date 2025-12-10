@@ -1,0 +1,247 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Definir Planejamento - NUMUS</title>
+    <link href="{% static 'perfil/css/home.css' %}" rel="stylesheet">
+    <link href="{% static 'perfil/css/gerenciar.css' %}" rel="stylesheet">
+    <link href="{% static 'extrato/css/view_extrato.css' %}" rel="stylesheet">
+    <style>
+        .botao-editar {
+            background-color: #ffc107;
+            color: #000;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.3s;
+        }
+        .botao-editar:hover {
+            background-color: #ffb300;
+        }
+        
+        .delete-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .delete-modal-box {
+            background-color: #fff;
+            padding: 24px;
+            border-radius: 8px;
+            min-width: 300px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .delete-modal-box h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        
+        .delete-modal-box p {
+            margin: 12px 0;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    {% include 'includes/sidebar.html' %}
+
+    <div class="main-content">
+        <div class="header"><h1 class="header-title">Definir Planejamento</h1><a class="logo" title="Logo"><img src="{% static 'perfil/img/logo.png' %}" alt="Logo" style="width:48px"></a></div>
+        <div class="greeting"><h2>Defina valores planejados por categoria</h2><p>Ajuste os valores e salve.</p></div>
+
+        <div class="container">
+            {% if messages %}{% for message in messages %}<div class="alert {{ message.tags }}">{{ message }}</div>{% endfor %}{% endif %}
+
+            <div class="card" style="margin-bottom:12px">
+                <form action="{% url 'salvar_valor_categoria_form' %}" method="POST" class="definir-planejamento-form">
+                    {% csrf_token %}
+                    <label for="categoria_select" style="margin-right:6px">Categoria</label>
+                    <select id="categoria_select" name="categoria_id" class="form-select" style="min-width:220px">
+                        <option value="">-- selecione --</option>
+                        {% for categoria in categorias %}
+                            <option value="{{ categoria.id }}">{{ categoria.categoria }}</option>
+                        {% endfor %}
+                    </select>
+                    <input name="novo_valor" type="text" placeholder="Valor planejado (ex: 1500.00)" class="form-control" style="max-width:220px">
+                    <button type="submit" class="botao-principal">Salvar</button>
+                    <button type="button" class="botao-principal" onclick="window.open('{% url 'ver_planejamento' %}', '_blank')" style="margin-left:8px">Ver planejamento</button>
+                </form>
+            </div>
+
+            <div class="card">
+                <table class="definir-planejamento-table" style="width:100%;border-collapse:collapse">
+                    <tr>
+                        <th style="text-align:left;padding:8px">Categoria</th>
+                        <th style="text-align:left;padding:8px">Valor planejado</th>
+                        <th style="text-align:left;padding:8px">Ação</th>
+                    </tr>
+                    {% for categoria in categorias %}
+                    <tr class="linha">
+                        <td style="padding:8px">{{ categoria.categoria }}</td>
+                        <td style="padding:8px">
+                            <form id="form-{{ categoria.id }}" action="{% url 'salvar_valor_categoria' categoria.id %}" method="POST" class="categoria-row-form">
+                                {% csrf_token %}
+                                <input name="novo_valor" type="text" id="valor-categoria-{{ categoria.id }}" class="form-control" value="{{ categoria.valor_planejado }}" disabled>
+                            </form>
+                        </td>
+                        <td style="padding:8px">
+                            <div class="action-buttons" style="display:flex;gap:6px;align-items:center">
+                                <button type="button" class="botao-editar" id="btn-editar-{{ categoria.id }}" data-catid="{{ categoria.id }}" style="padding:6px 12px;font-size:14px">Editar</button>
+                                <button type="button" class="botao-principal" id="btn-salvar-{{ categoria.id }}" data-catid="{{ categoria.id }}" style="padding:6px 12px;font-size:14px;display:none" onclick="salvarValorCategoria({{ categoria.id }})">Salvar</button>
+                                <button type="button" class="botao-principal botao-excluir" data-catid="{{ categoria.id }}" data-catname="{{ categoria.categoria|escapejs }}">Excluir</button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function salvarValorCategoria(id) {
+            let valor = document.getElementById('valor-categoria-' + id).value;
+            let input = document.getElementById('valor-categoria-' + id);
+            let btnEditar = document.getElementById('btn-editar-' + id);
+            let btnSalvar = document.getElementById('btn-salvar-' + id);
+
+            fetch('/planejamento/update_valor_categoria/' + id, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({ novo_valor: valor })
+            }).then(function (result) {
+                return result.json()
+            }).then(function (data) {
+                console.log(data);
+                input.disabled = true;
+                btnEditar.style.display = 'block';
+                btnSalvar.style.display = 'none';
+            })
+        }
+
+        function habilitarEdicao(id) {
+            let input = document.getElementById('valor-categoria-' + id);
+            let btnEditar = document.getElementById('btn-editar-' + id);
+            let btnSalvar = document.getElementById('btn-salvar-' + id);
+
+            input.disabled = false;
+            input.focus();
+            btnEditar.style.display = 'none';
+            btnSalvar.style.display = 'block';
+        }
+
+        function update_valor_planejamento_categoria(id) {
+            let valor = document.getElementById('valor-categoria-' + id).value
+
+            fetch('/planejamento/update_valor_categoria/' + id, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({ novo_valor: valor })
+            }).then(function (result) {
+                return result.json()
+            }).then(function (data) {
+                console.log(data)
+            })
+        }
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        // Delete modal handling
+        function openDeleteModal(id, name) {
+            var modal = document.getElementById('deleteModal');
+            var nameEl = document.getElementById('deleteModalName');
+            nameEl.textContent = name;
+            var form = document.getElementById('deleteForm');
+            form.action = '/planejamento/deletar_categoria/' + id + '/';
+            modal.style.display = 'flex';
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('deleteModal').style.display = 'none';
+        }
+
+        // Close modal when clicking outside of it
+        window.addEventListener('click', function(event) {
+            var modal = document.getElementById('deleteModal');
+            if (event.target == modal) {
+                closeDeleteModal();
+            }
+        });
+
+        // Submit per-row form when Enter is pressed in the input
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.categoria-row-form input').forEach(function (inp) {
+                inp.addEventListener('keydown', function (e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        let id = inp.id.replace('valor-categoria-', '');
+                        salvarValorCategoria(id);
+                    }
+                });
+            });
+
+            document.querySelectorAll('.botao-editar').forEach(function(btn){
+                btn.addEventListener('click', function(e){
+                    var id = btn.getAttribute('data-catid');
+                    habilitarEdicao(id);
+                });
+            });
+
+            // Bind click handlers to excluir buttons (use data attributes)
+            document.querySelectorAll('.botao-excluir').forEach(function(btn){
+                btn.addEventListener('click', function(e){
+                    e.preventDefault();
+                    var id = btn.getAttribute('data-catid');
+                    var name = btn.getAttribute('data-catname');
+                    if (id) openDeleteModal(id, name);
+                });
+            });
+        });
+    </script>
+
+    <!-- Delete confirmation modal -->
+    <div id="deleteModal" class="delete-modal" style="display:none">
+        <div class="delete-modal-box">
+            <h3>Confirmar exclusão</h3>
+            <p>Tem certeza que deseja remover a categoria <strong id="deleteModalName"></strong> ?</p>
+            <form id="deleteForm" method="POST" style="display:flex;gap:8px;justify-content:flex-end">
+                {% csrf_token %}
+                <button type="button" class="botao-secundario" onclick="closeDeleteModal()">Cancelar</button>
+                <button type="submit" class="botao-principal">Excluir</button>
+            </form>
+        </div>
+    </div>
+
+</body>
+</html>

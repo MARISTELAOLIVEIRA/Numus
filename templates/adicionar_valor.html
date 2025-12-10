@@ -1,0 +1,100 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if tipo_valor == 'E' %}Adicionar Entrada{% else %}Adicionar Saída{% endif %} - NUMUS</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'perfil/css/home.css' %}">
+</head>
+
+<body>
+    <!-- MENU LATERAL -->
+    {% include 'includes/sidebar.html' %}
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <div class="main-content">
+        <!-- HEADER -->
+        <div class="header">
+            <h1 class="header-title">{% if tipo_valor == 'E' %}Registrar Entrada{% else %}Registrar Saída{% endif %}</h1>
+            <a class="logo" aria-label="Logo" title="Logo"><img src="{% static 'perfil/img/logo.png' %}" alt="Logo"></a>
+        </div>
+
+        <!-- SAUDAÇÃO -->
+        <div class="greeting">
+            {% if tipo_valor == 'E' %}
+                <h2>Registre um novo valor recebido</h2>
+                <p>Adicione uma entrada de dinheiro à sua conta.</p>
+            {% else %}
+                <h2>Registre um novo gasto</h2>
+                <p>Registre uma saída de dinheiro da sua conta.</p>
+            {% endif %}
+        </div>
+
+        <div class="container">
+            {% if messages %}{% for message in messages %}<div class="alert {{ message.tags }}">{{ message }}</div>{% endfor %}{% endif %}
+
+            <div class="row" style="margin-top:20px">
+                <div class="col-md-8 col-12">
+                    <div class="card">
+                        <div class="card-title">{% if tipo_valor == 'E' %}Nova Entrada{% else %}Nova Saída{% endif %}</div>
+                        <form action="{% url 'adicionar_valor' %}" method="POST">{% csrf_token %}
+                            <input type="hidden" name="tipo" value="{{ tipo_valor }}">
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label>Valor</label>
+                                    <input type="number" name="valor" class="form-control" step="0.01" required placeholder="{% if tipo_valor == 'E' %}Valor recebido...{% else %}Valor gasto...{% endif %}">
+                                </div>
+                                <div class="col-md-6">
+                                    <label>Categoria <span style="color:#999;font-size:12px">(opcional)</span></label>
+                                    <select name="categoria" class="form-select">
+                                        <option value="">-- Sem categoria --</option>
+                                        {% for categoria in categorias %}
+                                            <option value="{{categoria.id}}">{{categoria}}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <label>Descrição</label>
+                            <textarea name="descricao" class="form-control" rows="4" placeholder="{% if tipo_valor == 'E' %}Descreva o motivo da entrada...{% else %}Descreva o motivo da saída...{% endif %}" style="margin-bottom:16px"></textarea>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label>Data</label>
+                                    <input type="date" name="data" class="form-control" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label>Conta</label>
+                                    <select name="conta" class="form-select" required>
+                                        <option value="">-- Selecione --</option>
+                                        {% for conta in contas %}
+                                            <option value="{{conta.id}}">{{conta}}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <br>
+                            <div style="display:flex;gap:8px;margin-top:20px">
+                                {% if tipo_valor == 'E' %}
+                                    <input type="submit" class="botao-principal" style="flex:1" value="Adicionar Entrada">
+                                {% else %}
+                                    <input type="submit" class="botao-principal" style="flex:1;background:#dc3545" value="Adicionar Saída">
+                                {% endif %}
+                                <a href="{% url 'home' %}" class="botao-principal" style="flex:1;text-align:center;text-decoration:none;background:#6c757d">Cancelar</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

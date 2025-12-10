@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <title>Relatório de Movimentações</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+            color: #064E3B;
+            margin-bottom: 30px;
+        }
+        .info {
+            margin-bottom: 20px;
+            font-size: 12px;
+            color: #666;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th {
+            background-color: #064E3B;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            border: 1px solid #ddd;
+            font-weight: bold;
+        }
+        td {
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .entrada {
+            color: #10B981;
+            font-weight: bold;
+        }
+        .saida {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 10px;
+            color: #999;
+            border-top: 1px solid #ddd;
+            padding-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Relatório de Movimentações</h1>
+    <div class="info">
+        <p><strong>Data de Geração:</strong> {{ "now"|date:"d/m/Y H:i" }}</p>
+        <p><strong>Total de Movimentações:</strong> {{ valores|length }}</p>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Conta</th>
+                <th>Categoria</th>
+                <th>Data</th>
+                <th>Tipo</th>
+                <th>Valor</th>
+                <th>Descrição</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for valor in valores %}
+                <tr>
+                    <td>{{ valor.conta.apelido }}</td>
+                    <td>{% if valor.categoria %}{{ valor.categoria.categoria }}{% else %}Sem categoria{% endif %}</td>
+                    <td>{{ valor.data|date:"d/m/Y" }}</td>
+                    <td>
+                        {% if valor.tipo == 'S' %}
+                            <span class="saida">Saída</span>
+                        {% else %}
+                            <span class="entrada">Entrada</span>
+                        {% endif %}
+                    </td>
+                    <td>R$ {{ valor.valor|floatformat:2 }}</td>
+                    <td>{{ valor.descricao }}</td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="6" style="text-align: center;">Nenhuma movimentação encontrada</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="footer">
+        <p>Relatório gerado automaticamente pelo sistema NUMUS</p>
+    </div>
+</body>
+</html>
